@@ -3,7 +3,7 @@ from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 import torch
 
 class WhisperWrapper:
-    def __init__(self, model_id="openai/whisper-large-v3", gpu_index=1, use_cuda=True):
+    def __init__(self, model_id="openai/whisper-large-v3", gpu_index=0, use_cuda=True):
         """
         Initializes the model pipeline for further usage.
         """
