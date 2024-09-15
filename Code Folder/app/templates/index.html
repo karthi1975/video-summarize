@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Video to Quiz Application</title>
+</head>
+
+<body>
+    <h1>Upload Video for Transcription and Quiz Generation</h1>
+    <input type="file" id="videoUpload" accept="video/*" multiple>
+    <button id="uploadBtn">Upload Video</button>
+    <h2>Transcription</h2>
+    <p id="transcription"></p>
+    <br />
+    <label for="complexity">Choose complexity:</label>
+    <select id="complexity">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="advanced">Advanced</option>
+    </select>
+    <br />
+    <label for="q_type">Choose type:</label>
+    <select id="q_type">
+        <option value="quiz">Quiz</option>
+        <option value="interview" selected>Interview</option>
+    </select>
+    <button id="generateQuizBtn" style="display:none;">Generate Quiz</button>
+    <h2>Quiz</h2>
+    <pre id="quiz"></pre>
+    <h2 id="feedbackTitle" style="display:none;">Feedback</h2>
+    <form id="feedbackForm" style="display:none;">
+        <label for="transcriptionAccuracy">Transcription Accuracy:</label>
+        <input type="number" id="transcriptionAccuracy" name="transcriptionAccuracy" min="1" max="5" required>
+        <br/>
+        <label for="quizRelevance">Quiz Relevance:</label>
+        <input type="number" id="quizRelevance" name="quizRelevance" min="1" max="5" required>
+        <br/>
+        <label for="quizDifficulty">Quiz Difficulty:</label>
+        <input type="number" id="quizDifficulty" name="quizDifficulty" min="1" max="5" required>
+        <br/>
+        <label for="overallSatisfaction">Overall Satisfaction:</label>
+        <input type="number" id="overallSatisfaction" name="overallSatisfaction" min="1" max="5" required>
+        <br/>
+        <label for="comments">Additional Comments:</label>
+        <textarea id="comments" name="comments"></textarea>
+        <br/>
+        <button type="submit">Submit Feedback</button>
+    </form>
+
+
+    <script>
+        const domain = 'enter-your-hostname';
+        
+        document.getElementById('uploadBtn').onclick = function () {
+            const videoFile = document.getElementById('videoUpload').files[0];
+            const formData = new FormData();
+            const videoFiles = document.getElementById('videoUpload').files;
+            for (let i = 0; i < videoFiles.length; i++) {
+                formData.append('video', videoFiles[i]);
+            }
+
+            fetch(`http://${domain}:5000/transcribe_video`, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('transcription').textContent = data.transcription;
+                    document.getElementById('generateQuizBtn').style.display = 'block';
+                })
+                .catch(error => console.error('Error uploading video:', error));
+        };
+
+        document.getElementById('generateQuizBtn').onclick = function () {
+            const transcription = document.getElementById('transcription').textContent;
+            const complexity = document.getElementById('complexity').value;
+            const q_type = document.getElementById('q_type').value;
+
+            fetch(`http://${domain}:5000/generate_quiz`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ transcription: transcription, complexity: complexity, q_type: q_type })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('quiz').textContent = JSON.stringify(data.quiz, null, 2);
+                    document.getElementById('feedbackTitle').style.display = 'block';
+                    document.getElementById('feedbackForm').style.display = 'block';
+                })
+                .catch(error => console.error('Error generating quiz:', error));
+        };
+
+        document.getElementById('feedbackForm').onsubmit = function(e) {
+            e.preventDefault();
+            const formData = {
+                transcriptionAccuracy: document.getElementById('transcriptionAccuracy').value,
+                quizRelevance: document.getElementById('quizRelevance').value,
+                quizDifficulty: document.getElementById('quizDifficulty').value,
+                overallSatisfaction: document.getElementById('overallSatisfaction').value,
+                comments: document.getElementById('comments').value,
+                quiz:  document.getElementById('quiz').textContent,
+                transcription: document.getElementById('transcription').textContent,
+                complexity: document.getElementById('complexity').value,
+                type: document.getElementById('q_type').value
+            };
+            
+            fetch(`http://${domain}:5000/submit_feedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert("Thanks! Your feedback was submitted successfully.");
+                    console.log('Feedback submitted:', data)
+                })
+                .catch(error => {
+                    alert("Error while submitting feedback, check your console.")
+                    console.error('Error submitting feedback:', error)
+                });
+        };
+
+    </script>
+</body>
+
+</html>
