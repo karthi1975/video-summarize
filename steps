@@ -1,0 +1,7 @@
+1)apt update & apt upgrade
+2)apt install ffmpeg
+3)python -m venv venv
+4)source venv/bin/activate
+6)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
+7)pip install sentencepiece
+8)pip install protobuf
