@@ -5,3 +5,188 @@
 6)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
 7)pip install sentencepiece
 8)pip install protobuf
+
+
+
+- create 100 GB  /workspace (https://www.runpod.io/console/user/storage)
+- Attach the volume to  Pod RTX 2000 Ada
+
+setup below 
+
+
+### **Steps to Install LLaVA on RunPod Using `miniconda`**
+
+**Step 1: Create a RunPod Account and Deploy an Instance**
+
+1. **Create an Account on RunPod**: 
+ - Visit [RunPod.io](https://www.runpod.io) and create an account.
+ 
+2. **Select a GPU Instance**: 
+ - Navigate to "Explore" and browse the available GPU instances.
+ - Choose a cost-effective GPU option, like **NVIDIA RTX 4090, RTX 6000**, or **A100**, depending on your computational needs.
+
+3. **Launch Your Instance**: 
+ - Set up an instance and make sure it's set up for SSH access (if you want to access it remotely).
+
+---
+
+**Step 2: Install Miniconda**
+
+1. **SSH into the Instance**: After your instance is running, SSH into it using the credentials provided by RunPod.
+ 
+ ```bash
+ ssh -p <port> root@<instance_ip>
+ ```
+
+2. **Install Miniconda**:
+ Run the following commands to install Miniconda on your RunPod instance:
+
+ ```bash
+ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+ bash Miniconda3-latest-Linux-x86_64.sh
+ source ~/.bashrc
+ ```
+
+3. **Create a Conda Environment for LLaVA**:
+ 
+ ```bash
+ conda create -n llava_env python=3.9 -y
+ conda activate llava_env
+ ```
+
+---
+
+**Step 3: Install Dependencies**
+
+1. **Install Essential Dependencies**:
+
+ Use the following command to install the essential Python libraries for LLaVA, Streamlit, and Whisper:
+
+ ```bash
+ pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
+ pip install transformers streamlit ffmpeg-python git+https://github.com/openai/whisper.git sentence-transformers faiss-cpu openai python-dotenv soundfile
+ ```
+
+2. **Install FFmpeg** (for handling media files):
+ 
+ ```bash
+ sudo apt update
+ sudo apt install ffmpeg
+ ```
+
+---
+
+ssh-keygen -t rsa -b 4096 -C "karthi.jeyabalan@gmail.com"
+
+**Step 4: Clone Your Application Code**
+
+1. **Clone Your Git Repository**: If your application code is in a GitHub repository, clone it:
+
+ ```bash
+ git clone https://github.com/yourusername/your-repo.git
+ cd your-repo
+ ```
+
+2. **Install Additional Requirements** (if you have a `requirements.txt` file):
+
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+---
+
+**Step 5: Set Up Environment Variables**
+
+1. **Create a `.env` File**:
+ [
+ sudo apt-get update
+ sudo apt-get install -y nano
+ ]
+ ```bash
+ nano .env
+ ```
+
+2. **Add Your OpenAI API Key**:
+
+ Add the following content to your `.env` file:
+
+ ```env
+ OPENAI_API_KEY=your_openai_api_key_here
+ ```
+
+3. **Load the Environment Variables**:
+
+ ```bash
+ export $(cat .env | xargs)
+ ```
+
+---
+
+**Step 6: Download the LLaVA Model**
+
+1. **Install Git LFS (Large File Support)**:
+ 
+ ```bash
+ sudo apt install git-lfs
+ git lfs install
+ ```
+
+2. **Clone the Model Repository**:
+
+ Download the LLaVA model using Git LFS:
+
+ ```bash
+ git clone https://huggingface.co/liuhaotian/LLaVA-1.5-7b
+ ```
+
+3. **Move the model into your working directory (if necessary)** to ensure everything is correctly structured.
+
+---
+
+**Step 7: Run the Streamlit Application**
+
+1. **Start the Streamlit App**:
+
+ Run the Streamlit application on the RunPod instance, exposing it to external traffic:
+
+ ```bash
+ streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+ ```
+
+2. **Ensure Correct Port Access**: Verify that port 8501 (used by Streamlit) is open on the RunPod instance for external access.
+
+---
+
+**Step 8: Access the Application**
+
+1. **Access the Application in Your Browser**:
+
+ Open your web browser and navigate to:
+
+ ```url
+ http://<instance_ip>:8501
+ ```
+
+ This will display your Streamlit application, which will allow you to interact with your LLaVA model.
+
+---
+
+### **Additional Considerations**
+
+- **Resource Optimization**:
+ - Choose a smaller model (if applicable) to save costs if real-time performance is not required.
+ - Use batch processing or optimization techniques like model quantization to reduce GPU and memory consumption.
+
+- **Cost Monitoring**:
+ - Keep track of the runtime hours of your GPU instance in RunPod’s dashboard to manage costs effectively.
+
+- **Spot Instances**:
+ - If RunPod offers spot instances, you can leverage them for cost savings.
+
+---
+
+### **Conclusion**
+
+RunPod provides a cost-effective way to deploy GPU-intensive applications like LLaVA. With `miniconda` and the ability to install and manage environments, it offers flexibility and power for AI workloads, while remaining more affordable than AWS or other major providers.
+
+By following the steps outlined above, you can efficiently set up and run your LLaVA model on RunPod, taking advantage of its GPU capabilities
